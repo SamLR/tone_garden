@@ -57,16 +57,30 @@
         }
     };
 
+    var reset = document.querySelector('#reset');
+    reset.onclick = function() {
+        for (var i = tones.length - 1; i >= 0; i--) {
+            tones[i].removeBox();
+        }
+
+        tones = [];
+        resetCanvas();
+    };
+
     var canvas = document.querySelector('#garden');
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
 
     var canvasCtx = canvas.getContext('2d');
 
+    function resetCanvas () {
+        canvasCtx.fillStyle = "#FFFFFF";
+        canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+        canvasCtx.strokeRect(1, 1, WIDTH-1, HEIGHT-1);
+    }
+
+    resetCanvas();
     canvas.onclick = updatePage;
-    canvasCtx.fillStyle = "#FFFFFF";
-    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-    canvasCtx.strokeRect(1, 1, WIDTH-1, HEIGHT-1);
 
     function updatePage (e) {
         var bounding = canvas.getBoundingClientRect();
@@ -101,9 +115,7 @@
             });
         }
 
-        canvasCtx.fillStyle = "#FFFFFF";
-        canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-        canvasCtx.strokeRect(1, 1, WIDTH-1, HEIGHT-1);
+        resetCanvas();
         canvasCtx.fillStyle = "#FF0000";
         for (i = tones.length - 1; i >= 0; i--) {
             tt = tones[i];
