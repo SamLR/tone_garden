@@ -107,8 +107,8 @@
     // Get the mouse position in the canvas co-ordinates
     function getMousePosition (event) {
         return {
-            x : event.clientX - canvas.offsetLeft,
-            y : event.clientY - canvas.offsetTop
+            x : event.pageX - canvas.offsetLeft,
+            y : event.pageY - canvas.offsetTop
         };
     }
 
