@@ -11,6 +11,7 @@
     var MAX_GAIN = 0.02;
     var MIN_FREQUENCY = 2000;
     var MAX_FREQUENCY = 5000;
+    var BUFFER_SIZE = 4096;
 
     // derived values
     var freqScaler = (MAX_FREQUENCY - MIN_FREQUENCY)/WIDTH;
@@ -118,18 +119,18 @@
         var y1 = point.y - sideLength/2;
         var x2 = x1 + sideLength;
         var y2 = y1 + sideLength;
-        var oscillatorNode = audioCtx.createOscillator();
+        var soundNode = makeNoiseNode();
         var gainNode = audioCtx.createGain();
 
         // Initialise the oscillator and gain
         gainNode.gain.value = point.y * gainScaler;
-        oscillatorNode.type = 'sine';
-        oscillatorNode.frequency.value = point.x * freqScaler;
 
         // connect everything and bring the noise.
-        oscillatorNode.connect(gainNode);
+        soundNode.connect(gainNode);
         gainNode.connect(masterGainNode);
-        oscillatorNode.start();
+        if (soundNode.start) {
+            soundNode.start();
+        }
 
         // return the box object
         return {
@@ -150,11 +151,32 @@
             },
             // Shut the tone box up
             stopTone: function () {
-                oscillatorNode.stop();
+                if (soundNode.stop) {
+                    soundNode.stop();
+                }
                 gainNode.disconnect(masterGainNode);
-                oscillatorNode.disconnect(gainNode);
+                soundNode.disconnect(gainNode);
             }
         };
+    }
+
+    function makeSineNode (point) {
+        var oscillatorNode = audioCtx.createOscillator();
+        oscillatorNode.type = 'sine';
+        oscillatorNode.frequency.value = point.x * freqScaler;
+        return oscillatorNode;
+    }
+
+    // Copied from this tutorial http://noisehack.com/generate-noise-web-audio-api/
+    function makeNoiseNode () {
+        var scriptNode = audioCtx.createScriptProcessor(BUFFER_SIZE, 1, 1);
+        scriptNode.onaudioprocess = function (event) {
+            var outputbuffer = event.outputBuffer.getChannelData(0);
+            for (var i = BUFFER_SIZE - 1; i >= 0; i--) {
+                outputbuffer[i] = Math.random() * 2 - 1;
+            }
+        };
+        return scriptNode;
     }
 
 }());
