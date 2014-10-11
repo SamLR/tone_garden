@@ -120,14 +120,25 @@
         var x2 = x1 + sideLength;
         var y2 = y1 + sideLength;
         var soundNode = makeNoiseNode();
+        var gainModNode = makeSineNode(0.2);
+        // var gainModNode = makeSineNode(point.x * freqScaler);
         var gainNode = audioCtx.createGain();
+        var gainParamGain = audioCtx.createGain();
 
-        // Initialise the oscillator and gain
+        // // Initialise the oscillator and gain
         gainNode.gain.value = point.y * gainScaler;
+        
+        gainModNode.start();
+        gainParamGain.gain.value = 0.5;
+        gainModNode.connect(gainParamGain);
+
+        gainParamGain.connect(gainNode.gain);
+
+        soundNode.connect(gainNode);
 
         // connect everything and bring the noise.
-        soundNode.connect(gainNode);
         gainNode.connect(masterGainNode);
+
         if (soundNode.start) {
             soundNode.start();
         }
@@ -160,10 +171,10 @@
         };
     }
 
-    function makeSineNode (point) {
+    function makeSineNode (freq) {
         var oscillatorNode = audioCtx.createOscillator();
         oscillatorNode.type = 'sine';
-        oscillatorNode.frequency.value = point.x * freqScaler;
+        oscillatorNode.frequency.value = freq;
         return oscillatorNode;
     }
 
