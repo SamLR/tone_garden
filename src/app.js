@@ -120,7 +120,8 @@
         var x2 = x1 + sideLength;
         var y2 = y1 + sideLength;
         var soundNode = makeNoiseNode();
-        var gainModNode = makeSineNode(0.2);
+        // var gainModNode = makeSineNode(0.2);
+        var gainModNode = makeWaveNode();
         // var gainModNode = makeSineNode(point.x * freqScaler);
         var gainNode = audioCtx.createGain();
         var gainParamGain = audioCtx.createGain();
@@ -128,8 +129,9 @@
         // // Initialise the oscillator and gain
         gainNode.gain.value = point.y * gainScaler;
         
-        gainModNode.start();
-        gainParamGain.gain.value = 0.5;
+        // gainModNode.start();
+        // gainParamGain.gain.value = 0.5;
+        gainParamGain.gain.value = 1.0;
         gainModNode.connect(gainParamGain);
 
         gainParamGain.connect(gainNode.gain);
@@ -176,6 +178,17 @@
         oscillatorNode.type = 'sine';
         oscillatorNode.frequency.value = freq;
         return oscillatorNode;
+    }
+
+    function makeWaveNode () {
+        var scriptNode = audioCtx.createScriptProcessor(BUFFER_SIZE, 1, 1);
+        scriptNode.onaudioprocess = function (event) {
+            var outputbuffer = event.outputBuffer.getChannelData(0);
+            for (var i = BUFFER_SIZE - 1; i >= 0; i--) {
+                outputbuffer[i] = i/BUFFER_SIZE;
+            }
+        };
+        return scriptNode;
     }
 
     // Copied from this tutorial http://noisehack.com/generate-noise-web-audio-api/
